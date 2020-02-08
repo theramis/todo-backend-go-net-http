@@ -1,7 +1,7 @@
 package main
 
 type Todo struct {
-	Title string
-	Order int
-	Completed bool
+	Title     string `json:"title"`
+	Order     int    `json:"order"`
+	Completed bool   `json:"completed"`
 }

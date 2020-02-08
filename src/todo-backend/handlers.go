@@ -36,8 +36,9 @@ func getTodosHandler(writer *http.ResponseWriter, request *http.Request, rawId s
 	if rawId == "" {
 		todos := getTodos()
 
-		for _, todo := range todos {
+		for i, todo := range todos {
 			todo.setUrl(request)
+			todos[i] = todo
 		}
 
 		err = json.NewEncoder(w).Encode(todos)

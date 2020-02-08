@@ -8,7 +8,11 @@ import (
 	"strings"
 )
 
+var allRequests = make([]string, 0)
+
 func handler(writer http.ResponseWriter, request *http.Request) {
+	allRequests = append(allRequests, request.Method+": "+request.URL.Path)
+
 	var err error
 	addCorsHeaders(&writer)
 

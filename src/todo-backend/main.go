@@ -10,8 +10,16 @@ import (
 
 var allRequests = make([]string, 0)
 
+func addRequest(request *http.Request) {
+	err := recover()
+	if err != nil {
+		allRequests = append(allRequests, request.Method+": "+request.URL.Path+" Error")
+	}
+	allRequests = append(allRequests, request.Method+": "+request.URL.Path)
+}
+
 func handler(writer http.ResponseWriter, request *http.Request) {
-	allRequests = append(allRequests, request.Method+": "+request.URL.Path+"|"+request.RequestURI)
+	defer addRequest(request)
 
 	var err error
 	addCorsHeaders(&writer)

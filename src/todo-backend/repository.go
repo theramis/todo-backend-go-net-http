@@ -4,21 +4,21 @@ import "errors"
 
 var allTodos = make(map[int]Todo)
 
-func addTodo(id int, todo Todo) error {
-	_, ok := allTodos[id]
+func addTodo(todo Todo) error {
+	_, ok := allTodos[todo.Id]
 	if ok {
 		return errors.New("todo already exists")
 	}
-	allTodos[id] = todo
+	allTodos[todo.Id] = todo
 	return nil
 }
 
-func getTodos() map[int]Todo {
+func getTodos() []Todo {
 	result := make([]Todo, 0)
 	for _, todo := range allTodos {
 		result = append(result, todo)
 	}
-	return allTodos
+	return result
 }
 
 func getTodo(id int) (Todo, error) {

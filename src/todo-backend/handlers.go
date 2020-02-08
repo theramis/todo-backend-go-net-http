@@ -12,17 +12,18 @@ var globalId = 0
 func createTodoHandler(writer *http.ResponseWriter, request *http.Request) error {
 	w := *writer
 
-	todo := Todo{}
+	todo := Todo{Id: globalId}
 	err := json.NewDecoder(request.Body).Decode(&todo)
 	if err != nil {
 		return err
 	}
-	err = addTodo(globalId, todo)
+	err = addTodo(todo)
+	defer func() { globalId++ }()
 	if err != nil {
 		return err
 	}
-	globalId++
 
+	todo.setUrl(request)
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(todo)
 	return err
@@ -32,14 +33,12 @@ func getTodosHandler(writer *http.ResponseWriter, request *http.Request) error {
 	w := *writer
 	todos := getTodos()
 
-	result := make([]TodoResponse, 0)
-	for key, todo := range todos {
-		url := fmt.Sprintf("http://%v/todos/%v", request.Host, strconv.Itoa(key))
-		result = append(result, TodoResponse{Todo: todo, Url: url})
+	for _, todo := range todos {
+		todo.setUrl(request)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	err := json.NewEncoder(w).Encode(result)
+	err := json.NewEncoder(w).Encode(todos)
 	return err
 }
 

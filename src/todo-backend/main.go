@@ -33,7 +33,7 @@ func handler(writer http.ResponseWriter, request *http.Request) {
 	case "POST":
 		err = createTodoHandler(&writer, request)
 	case "GET":
-		err = getTodosHandler(&writer, request)
+		err = getTodosHandler(&writer, request, todoId)
 	case "DELETE":
 		deleteTodoHandler(todoId)
 	default:

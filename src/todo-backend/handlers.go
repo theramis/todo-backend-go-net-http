@@ -29,16 +29,32 @@ func createTodoHandler(writer *http.ResponseWriter, request *http.Request) error
 	return err
 }
 
-func getTodosHandler(writer *http.ResponseWriter, request *http.Request) error {
+func getTodosHandler(writer *http.ResponseWriter, request *http.Request, rawId string) error {
 	w := *writer
-	todos := getTodos()
+	var err error
+	w.Header().Set("Content-Type", "application/json")
+	if rawId == "" {
+		todos := getTodos()
 
-	for _, todo := range todos {
+		for _, todo := range todos {
+			todo.setUrl(request)
+		}
+
+		err = json.NewEncoder(w).Encode(todos)
+	} else {
+		id, err := strconv.Atoi(rawId)
+		if err != nil {
+			return err
+		}
+
+		todo, err := getTodo(id)
+		if err != nil {
+			return err
+		}
 		todo.setUrl(request)
+		err = json.NewEncoder(w).Encode(todo)
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	err := json.NewEncoder(w).Encode(todos)
 	return err
 }
 

@@ -7,6 +7,8 @@ import (
 	"strconv"
 )
 
+var globalId = 0
+
 func createTodoHandler(writer *http.ResponseWriter, request *http.Request) error {
 	w := *writer
 
@@ -15,10 +17,11 @@ func createTodoHandler(writer *http.ResponseWriter, request *http.Request) error
 	if err != nil {
 		return err
 	}
-	err = addTodo(todo)
+	err = addTodo(globalId, todo)
 	if err != nil {
 		return err
 	}
+	globalId++
 
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(todo)
@@ -28,8 +31,15 @@ func createTodoHandler(writer *http.ResponseWriter, request *http.Request) error
 func getTodosHandler(writer *http.ResponseWriter, request *http.Request) error {
 	w := *writer
 	todos := getTodos()
+
+	result := make([]TodoResponse, 0)
+	for key, todo := range todos {
+		url := fmt.Sprintf("http://%v/todos/%v", request.Host, strconv.Itoa(key))
+		result = append(result, TodoResponse{Todo: todo, Url: url})
+	}
+
 	w.Header().Set("Content-Type", "application/json")
-	err := json.NewEncoder(w).Encode(todos)
+	err := json.NewEncoder(w).Encode(result)
 	return err
 }
 

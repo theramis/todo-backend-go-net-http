@@ -5,3 +5,8 @@ type Todo struct {
 	Order     int    `json:"order"`
 	Completed bool   `json:"completed"`
 }
+
+type TodoResponse struct {
+	Todo
+	Url string `json:"url"`
+}

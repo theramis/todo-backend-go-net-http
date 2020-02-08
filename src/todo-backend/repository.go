@@ -14,9 +14,9 @@ func addTodo(todo Todo) error {
 }
 
 func getTodos() []Todo {
-	result := make([]Todo, len(allTodos))
-	for i, todo := range allTodos {
-		result[i-1] = todo
+	result := make([]Todo, 0)
+	for _, todo := range allTodos {
+		result = append(result, todo)
 	}
 	return result
 }

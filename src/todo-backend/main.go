@@ -8,6 +8,7 @@ import (
 )
 
 func handler(writer http.ResponseWriter, request *http.Request) {
+	writer.Header().Set("access-control-allow-origin", "*")
 	_, _ = fmt.Fprint(writer, "Hello World!")
 }
 

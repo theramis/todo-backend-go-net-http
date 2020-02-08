@@ -34,6 +34,10 @@ func getTodosHandler(writer *http.ResponseWriter, request *http.Request) error {
 }
 
 func deleteTodoHandler(rawId string) error {
+	if rawId == "" {
+		deleteAllTodos()
+		return nil
+	}
 	id, err := strconv.Atoi(rawId)
 	if err != nil {
 		return err

@@ -15,8 +15,8 @@ func addTodo(todo Todo) error {
 
 func getTodos() []Todo {
 	result := make([]Todo, len(allTodos))
-	for _, todo := range allTodos {
-		result = append(result, todo)
+	for i, todo := range allTodos {
+		result[i-1] = todo
 	}
 	return result
 }
@@ -32,7 +32,3 @@ func getTodo(id int) (Todo, error) {
 func deleteTodo(id int) {
 	delete(allTodos, id)
 }
-
-
-
-

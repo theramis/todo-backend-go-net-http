@@ -44,5 +44,5 @@ func main() {
 	http.HandleFunc("/todos", handler)
 	http.HandleFunc("/todos/", handler)
 	http.HandleFunc("/", catchAllHandler)
-	log.Fatal(http.ListenAndServe(":" + port, nil))
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }

@@ -14,7 +14,7 @@ func addTodo(todo Todo) error {
 }
 
 func getTodos() []Todo {
-	var result []Todo
+	result := make([]Todo, len(allTodos))
 	for _, todo := range allTodos {
 		result = append(result, todo)
 	}
@@ -27,6 +27,10 @@ func getTodo(id int) (Todo, error) {
 		return Todo{}, errors.New("todo not found")
 	}
 	return todo, nil
+}
+
+func deleteTodo(id int) {
+	delete(allTodos, id)
 }
 
 

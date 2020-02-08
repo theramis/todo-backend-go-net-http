@@ -48,7 +48,10 @@ func deleteTodoHandler(rawId string) error {
 
 func catchAllHandler(writer http.ResponseWriter, request *http.Request) {
 	addCorsHeaders(&writer)
-	_, _ = fmt.Fprint(writer, allRequests)
+
+	for _, v := range allRequests {
+		_, _ = fmt.Fprintln(writer, v)
+	}
 }
 
 func addCorsHeaders(writer *http.ResponseWriter) {

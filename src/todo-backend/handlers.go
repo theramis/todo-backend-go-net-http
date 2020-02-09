@@ -52,8 +52,9 @@ func createTodoHandler(w http.ResponseWriter, r *http.Request) {
 		errorResponse(w, err)
 		return
 	}
-	todo.setUrl(r)
+
 	addTodo(&todo)
+	todo.setUrl(r)
 
 	err = json.NewEncoder(w).Encode(todo)
 	if err != nil {

@@ -17,6 +17,8 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 		getAllTodosHandler(w, r)
 	case "DELETE":
 		deleteAllTodosHandler()
+	case "OPTIONS":
+		return
 	default:
 		http.NotFoundHandler().ServeHTTP(w, r)
 	}

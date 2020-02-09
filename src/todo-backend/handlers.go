@@ -59,7 +59,7 @@ func getTodosHandler(writer *http.ResponseWriter, request *http.Request, rawId s
 	return err
 }
 
-func updateTodoHandler(request *http.Request, rawId string) error {
+func updateTodoHandler(writer *http.ResponseWriter, request *http.Request, rawId string) error {
 	if rawId == "" {
 		return nil
 	}
@@ -86,7 +86,11 @@ func updateTodoHandler(request *http.Request, rawId string) error {
 	todo.Title = updatedTodo.Title
 
 	updateTodo(id, todo)
-	return nil
+
+	w := *writer
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(todo)
+	return err
 }
 
 func deleteTodoHandler(rawId string) error {

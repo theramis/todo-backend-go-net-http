@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 )
@@ -24,7 +23,6 @@ func createTodoHandler(writer *http.ResponseWriter, request *http.Request) error
 	}
 
 	todo.setUrl(request)
-	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(todo)
 	return err
 }
@@ -32,7 +30,6 @@ func createTodoHandler(writer *http.ResponseWriter, request *http.Request) error
 func getTodosHandler(writer *http.ResponseWriter, request *http.Request, rawId string) error {
 	w := *writer
 	var err error
-	w.Header().Set("Content-Type", "application/json")
 	if rawId == "" {
 		todos := getTodos()
 
@@ -94,7 +91,6 @@ func updateTodoHandler(writer *http.ResponseWriter, request *http.Request, rawId
 
 	resultTodo.setUrl(request)
 	w := *writer
-	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(resultTodo)
 	return err
 }
@@ -110,19 +106,4 @@ func deleteTodoHandler(rawId string) error {
 	}
 	deleteTodo(id)
 	return nil
-}
-
-func catchAllHandler(writer http.ResponseWriter, request *http.Request) {
-	addCorsHeaders(&writer)
-
-	for _, v := range allRequests {
-		_, _ = fmt.Fprintln(writer, v)
-	}
-}
-
-func addCorsHeaders(writer *http.ResponseWriter) {
-	w := *writer
-	w.Header().Set("access-control-allow-origin", "*")
-	w.Header().Set("access-control-allow-methods", "GET, POST, PATCH, DELETE")
-	w.Header().Set("access-control-allow-headers", "accept, content-type")
 }

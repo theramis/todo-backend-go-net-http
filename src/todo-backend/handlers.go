@@ -87,9 +87,15 @@ func updateTodoHandler(writer *http.ResponseWriter, request *http.Request, rawId
 
 	updateTodo(id, todo)
 
+	resultTodo, err := getTodo(id)
+	if err != nil {
+		return err
+	}
+
+	resultTodo.setUrl(request)
 	w := *writer
 	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(todo)
+	err = json.NewEncoder(w).Encode(resultTodo)
 	return err
 }
 

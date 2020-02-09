@@ -37,6 +37,8 @@ func resourceHandler(w http.ResponseWriter, r *http.Request) {
 			getTodoHandler(w, r, id)
 		case "PATCH":
 			updateTodoHandler(w, r, id)
+		case "DELETE":
+			deleteTodoHandler(id)
 		default:
 			http.NotFoundHandler().ServeHTTP(w, r)
 		}
@@ -111,6 +113,10 @@ func updateTodoHandler(w http.ResponseWriter, r *http.Request, id int) {
 	if err != nil {
 		errorResponse(w, err)
 	}
+}
+
+func deleteTodoHandler(id int) {
+	deleteTodo(id)
 }
 
 func deleteAllTodosHandler() {

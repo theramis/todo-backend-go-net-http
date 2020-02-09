@@ -28,6 +28,10 @@ func getTodo(id int) (Todo, error) {
 	return *todo, nil
 }
 
+func deleteTodo(id int) {
+	delete(allTodos, id)
+}
+
 func deleteAllTodos() {
 	allTodos = make(map[int]*Todo)
 }

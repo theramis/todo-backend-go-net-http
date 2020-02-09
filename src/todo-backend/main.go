@@ -13,9 +13,8 @@ var allRequests = make([]string, 0)
 func addRequest(request *http.Request) {
 	err := recover()
 	if err != nil {
-		allRequests = append(allRequests, request.Method+": "+request.URL.Path+" Error")
+		allRequests = append(allRequests, request.Method+": "+request.URL.Path+" Panic!")
 	}
-	allRequests = append(allRequests, request.Method+": "+request.URL.Path)
 }
 
 func handler(writer http.ResponseWriter, request *http.Request) {
@@ -35,7 +34,7 @@ func handler(writer http.ResponseWriter, request *http.Request) {
 	case "GET":
 		err = getTodosHandler(&writer, request, todoId)
 	case "DELETE":
-		deleteTodoHandler(todoId)
+		err = deleteTodoHandler(todoId)
 	default:
 		_, err = fmt.Fprint(writer, "You are not mapped yet!")
 	}
@@ -43,6 +42,9 @@ func handler(writer http.ResponseWriter, request *http.Request) {
 	if err != nil {
 		writer.WriteHeader(500)
 		_, _ = fmt.Fprintf(writer, "Error processing request. %v", err)
+		allRequests = append(allRequests, request.Method+": "+request.URL.Path+" 500 - "+err.Error())
+	} else {
+		allRequests = append(allRequests, request.Method+": "+request.URL.Path+" 200")
 	}
 }
 

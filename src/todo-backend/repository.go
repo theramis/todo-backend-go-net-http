@@ -36,3 +36,7 @@ func deleteTodo(id int) {
 func deleteAllTodos() {
 	allTodos = make(map[int]Todo)
 }
+
+func updateTodo(id int, todo Todo) {
+	allTodos[id] = todo
+}

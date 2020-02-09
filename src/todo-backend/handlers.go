@@ -59,6 +59,36 @@ func getTodosHandler(writer *http.ResponseWriter, request *http.Request, rawId s
 	return err
 }
 
+func updateTodoHandler(request *http.Request, rawId string) error {
+	if rawId == "" {
+		return nil
+	}
+
+	id, err := strconv.Atoi(rawId)
+	if err != nil {
+		return err
+	}
+
+	todo, err := getTodo(id)
+	if err != nil {
+		return err
+	}
+
+	updatedTodo := Todo{}
+
+	err = json.NewDecoder(request.Body).Decode(&updatedTodo)
+	if err != nil {
+		return err
+	}
+
+	todo.Order = updatedTodo.Order
+	todo.Completed = updatedTodo.Completed
+	todo.Title = updatedTodo.Title
+
+	updateTodo(id, todo)
+	return nil
+}
+
 func deleteTodoHandler(rawId string) error {
 	if rawId == "" {
 		deleteAllTodos()

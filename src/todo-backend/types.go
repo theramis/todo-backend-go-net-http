@@ -15,5 +15,5 @@ type Todo struct {
 }
 
 func (todo *Todo) setUrl(request *http.Request) {
-	todo.Url = fmt.Sprintf("http://%v/todos/%v", request.Host, strconv.Itoa(todo.Id))
+	todo.Url = fmt.Sprintf("https://%v/todos/%v", request.Host, strconv.Itoa(todo.Id))
 }

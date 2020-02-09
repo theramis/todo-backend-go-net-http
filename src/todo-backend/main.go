@@ -34,7 +34,7 @@ func handler(writer http.ResponseWriter, request *http.Request) {
 	case "GET":
 		err = getTodosHandler(&writer, request, todoId)
 	case "PATCH":
-		err = updateTodoHandler(request, todoId)
+		err = updateTodoHandler(&writer, request, todoId)
 	case "DELETE":
 		err = deleteTodoHandler(todoId)
 	default:

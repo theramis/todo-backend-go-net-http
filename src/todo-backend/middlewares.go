@@ -11,7 +11,8 @@ func addAllMiddlewares(next func(w http.ResponseWriter, r *http.Request)) http.H
 		handlers.LoggingHandler(os.Stdout,
 			contentTypeMiddleware(
 				corsMiddleware(
-					http.HandlerFunc(next)))))
+					alwaysRespondToOptionsMiddleware(
+						http.HandlerFunc(next))))))
 }
 
 func contentTypeMiddleware(next http.Handler) http.HandlerFunc {
@@ -27,5 +28,15 @@ func corsMiddleware(next http.Handler) http.HandlerFunc {
 		w.Header().Set("access-control-allow-methods", "GET, POST, PATCH, DELETE")
 		w.Header().Set("access-control-allow-headers", "accept, content-type")
 		next.ServeHTTP(w, r)
+	}
+}
+
+func alwaysRespondToOptionsMiddleware(next http.Handler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "OPTIONS" {
+			return
+		} else {
+			next.ServeHTTP(w, r)
+		}
 	}
 }

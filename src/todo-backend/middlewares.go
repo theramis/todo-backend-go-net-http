@@ -7,10 +7,10 @@ import (
 )
 
 func addAllMiddlewares(next func(w http.ResponseWriter, r *http.Request)) http.Handler {
-	return handlers.RecoveryHandler()(
-		handlers.LoggingHandler(os.Stdout,
-			contentTypeMiddleware(
-				corsMiddleware(
+	return handlers.LoggingHandler(os.Stdout,
+		contentTypeMiddleware(
+			corsMiddleware(
+				handlers.RecoveryHandler()(
 					http.HandlerFunc(next)))))
 }
 

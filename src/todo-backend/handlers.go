@@ -2,108 +2,121 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
-var globalId = 0
-
-func createTodoHandler(writer *http.ResponseWriter, request *http.Request) error {
-	w := *writer
-
-	todo := Todo{Id: globalId}
-	err := json.NewDecoder(request.Body).Decode(&todo)
-	if err != nil {
-		return err
+func rootHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "POST":
+		createTodoHandler(w, r)
+	case "GET":
+		getAllTodosHandler(w, r)
+	case "DELETE":
+		deleteAllTodosHandler()
+	default:
+		http.NotFoundHandler().ServeHTTP(w, r)
 	}
-	err = addTodo(todo)
-	defer func() { globalId++ }()
-	if err != nil {
-		return err
-	}
-
-	todo.setUrl(request)
-	err = json.NewEncoder(w).Encode(todo)
-	return err
 }
 
-func getTodosHandler(writer *http.ResponseWriter, request *http.Request, rawId string) error {
-	w := *writer
-	var err error
-	if rawId == "" {
-		todos := getTodos()
-
-		for i, todo := range todos {
-			todo.setUrl(request)
-			todos[i] = todo
-		}
-
-		err = json.NewEncoder(w).Encode(todos)
-	} else {
+func resourceHandler(w http.ResponseWriter, r *http.Request) {
+	if path := strings.Split(r.URL.Path[1:], "/"); len(path) == 2 {
+		rawId := path[1]
 		id, err := strconv.Atoi(rawId)
 		if err != nil {
-			return err
+			w.WriteHeader(400)
+			_, _ = w.Write([]byte(fmt.Sprintf("Invalid todo id given: '%v'", rawId)))
+			return
 		}
 
-		todo, err := getTodo(id)
-		if err != nil {
-			return err
+		switch r.Method {
+		case "GET":
+			getTodoHandler(w, r, id)
+		case "PATCH":
+			updateTodoHandler(w, r, id)
+		default:
+			http.NotFoundHandler().ServeHTTP(w, r)
 		}
-		todo.setUrl(request)
-		err = json.NewEncoder(w).Encode(todo)
+	} else {
+		panic(errors.New("reached resource handler but shouldn't have"))
 	}
-
-	return err
 }
 
-func updateTodoHandler(writer *http.ResponseWriter, request *http.Request, rawId string) error {
-	if rawId == "" {
-		return nil
-	}
-
-	id, err := strconv.Atoi(rawId)
+func createTodoHandler(w http.ResponseWriter, r *http.Request) {
+	todo := Todo{}
+	err := json.NewDecoder(r.Body).Decode(&todo)
 	if err != nil {
-		return err
+		errorResponse(w, err)
+		return
 	}
+	todo.setUrl(r)
+	addTodo(&todo)
 
+	err = json.NewEncoder(w).Encode(todo)
+	if err != nil {
+		errorResponse(w, err)
+		return
+	}
+}
+
+func getAllTodosHandler(w http.ResponseWriter, r *http.Request) {
+	todos := getTodos()
+	for i, todo := range todos {
+		todos[i] = todo
+	}
+	err := json.NewEncoder(w).Encode(todos)
+	if err != nil {
+		errorResponse(w, err)
+	}
+}
+
+func getTodoHandler(w http.ResponseWriter, r *http.Request, id int) {
 	todo, err := getTodo(id)
 	if err != nil {
-		return err
+		http.NotFoundHandler().ServeHTTP(w, r)
+		return
+	}
+	err = json.NewEncoder(w).Encode(todo)
+	if err != nil {
+		errorResponse(w, err)
+	}
+}
+
+func updateTodoHandler(w http.ResponseWriter, r *http.Request, id int) {
+	todo, err := getTodo(id)
+	if err != nil {
+		http.NotFoundHandler().ServeHTTP(w, r)
+		return
 	}
 
 	updatedTodo := Todo{}
 
-	err = json.NewDecoder(request.Body).Decode(&updatedTodo)
+	err = json.NewDecoder(r.Body).Decode(&updatedTodo)
 	if err != nil {
-		return err
+		errorResponse(w, err)
+		return
 	}
 
 	todo.Order = updatedTodo.Order
 	todo.Completed = updatedTodo.Completed
 	todo.Title = updatedTodo.Title
 
-	updateTodo(id, todo)
+	updateTodo(todo)
 
-	resultTodo, err := getTodo(id)
+	err = json.NewEncoder(w).Encode(todo)
 	if err != nil {
-		return err
+		errorResponse(w, err)
 	}
-
-	resultTodo.setUrl(request)
-	w := *writer
-	err = json.NewEncoder(w).Encode(resultTodo)
-	return err
 }
 
-func deleteTodoHandler(rawId string) error {
-	if rawId == "" {
-		deleteAllTodos()
-		return nil
-	}
-	id, err := strconv.Atoi(rawId)
-	if err != nil {
-		return err
-	}
-	deleteTodo(id)
-	return nil
+func deleteAllTodosHandler() {
+	deleteAllTodos()
+}
+
+func errorResponse(w http.ResponseWriter, err error) {
+	w.WriteHeader(500)
+	w.Write([]byte(err.Error()))
 }

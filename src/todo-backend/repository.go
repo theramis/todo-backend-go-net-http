@@ -3,14 +3,13 @@ package main
 import "errors"
 
 var allTodos = make(map[int]Todo)
+var globalTodoId = 0
 
-func addTodo(todo Todo) error {
-	_, ok := allTodos[todo.Id]
-	if ok {
-		return errors.New("todo already exists")
-	}
-	allTodos[todo.Id] = todo
-	return nil
+func addTodo(todo *Todo) {
+	defer func() { globalTodoId++ }()
+
+	todo.Id = globalTodoId
+	allTodos[todo.Id] = *todo
 }
 
 func getTodos() []Todo {
@@ -29,14 +28,10 @@ func getTodo(id int) (Todo, error) {
 	return todo, nil
 }
 
-func deleteTodo(id int) {
-	delete(allTodos, id)
-}
-
 func deleteAllTodos() {
 	allTodos = make(map[int]Todo)
 }
 
-func updateTodo(id int, todo Todo) {
-	allTodos[id] = todo
+func updateTodo(todo Todo) {
+	allTodos[todo.Id] = todo
 }
